@@ -1,6 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-
-from views import get_all_animals
+import json
+from views import get_all_animals, get_single_animal, create_animal
 
 
 # Here's a class. It inherits from another class.
@@ -8,6 +8,21 @@ from views import get_all_animals
 # work together for a common purpose. In this case, that
 # common purpose is to respond to HTTP requests from a client.
 class HandleRequests(BaseHTTPRequestHandler):
+    def parse_url(self):
+        # /animals/1 (animals, 1)
+        split_path = self.path.split('/') # ['', 'animals', 1]
+        resource = split_path[1]
+        id = None
+        try:
+            id = int(split_path[2])
+        except IndexError:
+            pass
+        except ValueError:
+            pass
+
+        return (resource, id)
+
+
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
         """Sets the status code, Content-Type and Access-Control-Allow-Origin
@@ -35,20 +50,32 @@ class HandleRequests(BaseHTTPRequestHandler):
         self._set_headers(200)
 
         print(self.path)
+        
+        resource, id = self.parse_url()
 
-        if self.path == '/animals':
-            response = get_all_animals()
+        if 'animals' == resource:
+            if id is not None:
+                response = get_single_animal(id)
+            else:
+                response = get_all_animals()
         else:
             response = []
 
         self.wfile.write(f"{response}".encode())
 
     def do_POST(self):
+        """Make a post request to the server"""
         self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        response = f'received request: {post_body}'
-        self.wfile.write(response.encode())
+        request = json.loads(post_body)
+        new_animal = None
+        resource, _ = self.parse_url()
+
+        if 'animals' == resource:
+            new_animal = create_animal(request)
+
+        self.wfile.write(f'{new_animal}'.encode())
 
     def do_PUT(self):
         self.do_POST()

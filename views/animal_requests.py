@@ -26,3 +26,27 @@ animal = []
 
 def get_all_animals():
     return ANIMALS
+
+def get_single_animal(id):
+    """Get's a single animal from the ANIMALS list
+
+    Args:
+        id (int): The requested animal id
+
+    Returns:
+        [type]: [description]
+    """
+    requested_animal = None
+    for animal in ANIMALS:
+        if animal['id'] == id:
+            requested_animal = animal
+    return requested_animal
+
+def create_animal(animal):
+    last_id = ANIMALS[-1]['id']
+    new_id = last_id + 1
+
+    animal['id'] = new_id
+    ANIMALS.append(animal)
+
+    return animal
