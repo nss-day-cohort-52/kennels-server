@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from views import get_all_animals, get_single_animal, create_animal
+from views.animal_requests import delete_animal, update_animal
 
 
 # Here's a class. It inherits from another class.
@@ -10,7 +11,7 @@ from views import get_all_animals, get_single_animal, create_animal
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self):
         # /animals/1 (animals, 1)
-        split_path = self.path.split('/') # ['', 'animals', 1]
+        split_path = self.path.split('/')  # ['', 'animals', 1]
         resource = split_path[1]
         id = None
         try:
@@ -21,7 +22,6 @@ class HandleRequests(BaseHTTPRequestHandler):
             pass
 
         return (resource, id)
-
 
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
@@ -42,15 +42,18 @@ class HandleRequests(BaseHTTPRequestHandler):
         """
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept')
+        self.send_header('Access-Control-Allow-Methods',
+                         'GET, POST, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers',
+                         'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
     def do_GET(self):
+        """Handle Get requests to the server"""
         self._set_headers(200)
 
         print(self.path)
-        
+
         resource, id = self.parse_url()
 
         if 'animals' == resource:
@@ -78,7 +81,30 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.wfile.write(f'{new_animal}'.encode())
 
     def do_PUT(self):
-        self.do_POST()
+        """Handles PUT requests to the server"""
+        self._set_headers(204)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        request = json.loads(post_body)
+
+        resource, id = self.parse_url()
+
+        if 'animals' == resource:
+            update_animal(id, request)
+
+        self.wfile.write(''.encode())
+
+    def do_DELETE(self):
+        """Handle DELETE Requests"""
+        self._set_headers(204)
+        resource, id = self.parse_url()
+
+        if 'animals' == resource:
+            delete_animal(id)
+
+        self.wfile.write(''.encode())
+
+
 
 def main():
     """Starts the server on port 8088 using the HandleRequests class
