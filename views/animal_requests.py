@@ -22,10 +22,11 @@ ANIMALS = [
     }
 ]
 
-animal = []
 
 def get_all_animals():
+    """Return the ANIMALS list"""
     return ANIMALS
+
 
 def get_single_animal(id):
     """Get's a single animal from the ANIMALS list
@@ -34,7 +35,7 @@ def get_single_animal(id):
         id (int): The requested animal id
 
     Returns:
-        [type]: [description]
+        dictionary: the requested anim,al
     """
     requested_animal = None
     for animal in ANIMALS:
@@ -42,7 +43,16 @@ def get_single_animal(id):
             requested_animal = animal
     return requested_animal
 
+
 def create_animal(animal):
+    """Add the animal to the ANIMALS list
+
+    Args:
+        animal (dict): the new animal
+
+    Returns:
+        dictionary: the new animal
+    """
     last_id = ANIMALS[-1]['id']
     new_id = last_id + 1
 
@@ -51,7 +61,13 @@ def create_animal(animal):
 
     return animal
 
+
 def delete_animal(id):
+    """Remove an animal from the list
+
+    Args:
+        id (int): the id of the animal to remove
+    """
     animal_index = -1
     for index, animal in enumerate(ANIMALS):
         if animal['id'] == id:
@@ -62,6 +78,12 @@ def delete_animal(id):
 
 
 def update_animal(id, updated_animal):
+    """Update an animal in the list
+
+    Args:
+        id (int): the id of the animal to update
+        updated_animal (dict): the updated animal dictionary
+    """
     for index, animal in enumerate(ANIMALS):
         if animal['id'] == id:
             ANIMALS[index] = updated_animal

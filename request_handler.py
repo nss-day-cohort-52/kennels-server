@@ -9,18 +9,18 @@ from views.animal_requests import delete_animal, update_animal
 # work together for a common purpose. In this case, that
 # common purpose is to respond to HTTP requests from a client.
 class HandleRequests(BaseHTTPRequestHandler):
+    """Handles the requests to this server"""
+
     def parse_url(self):
+        """Parse the url into the resource and id"""
         # /animals/1 (animals, 1)
         split_path = self.path.split('/')  # ['', 'animals', 1]
         resource = split_path[1]
         id = None
         try:
             id = int(split_path[2])
-        except IndexError:
+        except (IndexError, ValueError):
             pass
-        except ValueError:
-            pass
-
         return (resource, id)
 
     def _set_headers(self, status):
@@ -56,11 +56,8 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         resource, id = self.parse_url()
 
-        if 'animals' == resource:
-            if id is not None:
-                response = get_single_animal(id)
-            else:
-                response = get_all_animals()
+        if resource == 'animals':
+            response = get_single_animal(id) if id is not None else get_all_animals()
         else:
             response = []
 
@@ -89,7 +86,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         resource, id = self.parse_url()
 
-        if 'animals' == resource:
+        if resource == 'animals':
             update_animal(id, request)
 
         self.wfile.write(''.encode())
@@ -99,11 +96,10 @@ class HandleRequests(BaseHTTPRequestHandler):
         self._set_headers(204)
         resource, id = self.parse_url()
 
-        if 'animals' == resource:
+        if resource == 'animals':
             delete_animal(id)
 
         self.wfile.write(''.encode())
-
 
 
 def main():
