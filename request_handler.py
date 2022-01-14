@@ -57,11 +57,14 @@ class HandleRequests(BaseHTTPRequestHandler):
         resource, id = self.parse_url()
 
         if resource == 'animals':
-            response = get_single_animal(id) if id is not None else get_all_animals()
+            if id is not None:
+                response = get_single_animal(id)
+            else:
+                 get_all_animals()
         else:
             response = []
 
-        self.wfile.write(f"{response}".encode())
+        self.wfile.write(response.encode())
 
     def do_POST(self):
         """Make a post request to the server"""
