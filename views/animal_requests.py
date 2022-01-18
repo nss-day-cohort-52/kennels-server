@@ -117,13 +117,12 @@ def delete_animal(id):
     Args:
         id (int): the id of the animal to remove
     """
-    animal_index = -1
-    for index, animal in enumerate(ANIMALS):
-        if animal['id'] == id:
-            animal_index = index
-
-    if animal_index > -1:
-        ANIMALS.pop(animal_index)
+    with sqlite3.connect('./kennel.sqlite3') as conn:
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+            Delete from animal
+            where id = ?
+        """, (id,))
 
 
 def update_animal(id, updated_animal):

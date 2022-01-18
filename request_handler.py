@@ -2,7 +2,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from views import get_all_animals, get_single_animal, create_animal
 from views.animal_requests import delete_animal, update_animal
-
+from views.customer_requests import get_customer_by_email
 
 # Here's a class. It inherits from another class.
 # For now, think of a class as a container for functions that
@@ -13,15 +13,25 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def parse_url(self):
         """Parse the url into the resource and id"""
+        # /animals
         # /animals/1 (animals, 1)
-        split_path = self.path.split('/')  # ['', 'animals', 1]
-        resource = split_path[1]
-        id = None
-        try:
-            id = int(split_path[2])
-        except (IndexError, ValueError):
-            pass
-        return (resource, id)
+        # /customers?email=jenna@solis.com
+        path_params = self.path.split('/')  # ['', 'animals', 1]
+        resource = path_params[1]
+        if '?' in resource:
+            param = resource.split('?')[1] # email=jenna@solis.com
+            resource = resource.split('?')[0] # customer
+            pair = param.split('=')
+            key = pair[0]
+            value = pair[1]
+            return (resource, key, value)
+        else:
+            id = None
+            try:
+                id = int(path_params[2])
+            except (IndexError, ValueError):
+                pass
+            return (resource, id)
 
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
@@ -54,15 +64,22 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         print(self.path)
 
-        resource, id = self.parse_url()
+        parsed = self.parse_url()
+        if len(parsed) == 2:
+            (resource, id) = parsed
 
-        if resource == 'animals':
-            if id is not None:
-                response = get_single_animal(id)
+            if resource == 'animals':
+                if id is not None:
+                    response = get_single_animal(id)
+                else:
+                    response = get_all_animals()
             else:
-                 get_all_animals()
-        else:
-            response = []
+                response = []
+        if len(parsed) == 3:
+            (resource, key, value) = parsed
+
+            if key == 'email' and resource == 'customers':
+                response = get_customer_by_email(value)
 
         self.wfile.write(response.encode())
 
