@@ -124,6 +124,14 @@ def delete_animal(id):
             where id = ?
         """, (id,))
 
+        was_updated = db_cursor.rowcount
+
+        if was_updated == 0:
+            return False
+        else:
+            return True
+
+
 
 def update_animal(id, updated_animal):
     """Update an animal in the list
@@ -132,7 +140,25 @@ def update_animal(id, updated_animal):
         id (int): the id of the animal to update
         updated_animal (dict): the updated animal dictionary
     """
-    for index, animal in enumerate(ANIMALS):
-        if animal['id'] == id:
-            ANIMALS[index] = updated_animal
-            break
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+            Update Animal
+            Set 
+                name = ?,
+                status = ?,
+                breed = ?,
+                customer_id = ?,
+                location_id = ?
+            Where id = ?
+        """, (updated_animal['name'],
+            updated_animal['status'], updated_animal['breed'], updated_animal['customer_id'], updated_animal['location_id'], id))
+        
+        was_updated = db_cursor.rowcount
+
+        if was_updated == 0:
+            return False
+        else:
+            return True

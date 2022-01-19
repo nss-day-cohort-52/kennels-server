@@ -99,26 +99,34 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         """Handles PUT requests to the server"""
-        self._set_headers(204)
+        
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         request = json.loads(post_body)
 
         resource, id = self.parse_url()
-
+        is_succesful = False
         if resource == 'animals':
-            update_animal(id, request)
+            is_succesful = update_animal(id, request)
 
-        self.wfile.write(''.encode())
+        if is_succesful:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+
+
 
     def do_DELETE(self):
         """Handle DELETE Requests"""
-        self._set_headers(204)
         resource, id = self.parse_url()
-
+        was_updated = False
         if resource == 'animals':
-            delete_animal(id)
-
+            was_updated = delete_animal(id)
+        
+        if was_updated:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
         self.wfile.write(''.encode())
 
 

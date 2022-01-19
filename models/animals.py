@@ -7,3 +7,4 @@ class Animal:
         self.location_id = location_id
         self.customer_id = customer_id
 
+

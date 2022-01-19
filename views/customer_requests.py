@@ -20,7 +20,7 @@ def get_customer_by_email(email):
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            customer = Customer(row['id'], row['name'], row['address'], row['email'])
+            customer = Customer(row['id'], row['name'], row['address'], row['email'], row['password'])
             customers.append(customer.__dict__)
-    
+
         return json.dumps(customers)
