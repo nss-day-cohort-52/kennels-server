@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Animal
+from models.animals import Animal
 ANIMALS = [
     {
         "id": 1,
@@ -47,12 +47,12 @@ def get_all_animals():
         animals = []
 
         for row in dataset:
-            animal = Animal(row['id'], row['name'], row['breed'], row['status'], row['location_id'], row['customer_id'])
+            animal = Animal(row['id'], row['name'], row['breed'],
+                            row['status'], row['location_id'], row['customer_id'])
 
             animals.append(animal.__dict__)
 
         return json.dumps(animals)
-
 
 
 def get_single_animal(id):
@@ -80,15 +80,15 @@ def get_single_animal(id):
             a.customer_id
         FROM animal a
         WHERE a.id = ?
-        """, ( id, ))
+        """, (id, ))
 
         # Load the single result into memory
         data = db_cursor.fetchone()
 
         # Create an animal instance from the current row
         animal = Animal(data['id'], data['name'], data['breed'],
-                            data['status'], data['location_id'],
-                            data['customer_id'])
+                        data['status'], data['location_id'],
+                        data['customer_id'])
 
         return json.dumps(animal.__dict__)
 
@@ -132,7 +132,6 @@ def delete_animal(id):
             return True
 
 
-
 def update_animal(id, updated_animal):
     """Update an animal in the list
 
@@ -154,11 +153,18 @@ def update_animal(id, updated_animal):
                 location_id = ?
             Where id = ?
         """, (updated_animal['name'],
-            updated_animal['status'], updated_animal['breed'], updated_animal['customer_id'], updated_animal['location_id'], id))
-        
+              updated_animal['status'], updated_animal['breed'], updated_animal['customer_id'], updated_animal['location_id'], id))
+
         was_updated = db_cursor.rowcount
 
         if was_updated == 0:
             return False
         else:
             return True
+
+
+def get_animals_by_search(text):
+    animals = json.loads(get_all_animals())
+    animals = [animal for animal in animals if text.lower()
+               in animal['name'].lower()]
+    return json.dumps(animals)

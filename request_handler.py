@@ -1,8 +1,11 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from views import get_all_animals, get_single_animal, create_animal
-from views.animal_requests import delete_animal, update_animal
-from views.customer_requests import get_customer_by_email
+from views.animal_requests import delete_animal, get_animals_by_search, update_animal
+from views.customer_requests import (
+    get_all_customers, get_customer_by_email, get_customers_by_name, get_single_customer)
+from views.employee_requests import get_all_employees, get_single_employee
+from views.location_requests import get_all_locations
 
 # Here's a class. It inherits from another class.
 # For now, think of a class as a container for functions that
@@ -19,8 +22,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         path_params = self.path.split('/')  # ['', 'animals', 1]
         resource = path_params[1]
         if '?' in resource:
-            param = resource.split('?')[1] # email=jenna@solis.com
-            resource = resource.split('?')[0] # customer
+            param = resource.split('?')[1]  # email=jenna@solis.com
+            resource = resource.split('?')[0]  # customer
             pair = param.split('=')
             key = pair[0]
             value = pair[1]
@@ -73,13 +76,30 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = get_single_animal(id)
                 else:
                     response = get_all_animals()
-            else:
-                response = []
+            elif resource == "locations":
+                if id is not None:
+                    response = f"{get_single_animal(id)}"
+                else:
+                    response = f"{get_all_locations()}"
+            elif resource == "customers":
+                if id is not None:
+                    response = f"{get_single_customer(id)}"
+                else:
+                    response = f"{get_all_customers()}"
+            elif resource == "employees":
+                if id is not None:
+                    response = f"{get_single_employee(id)}"
+                else:
+                    response = f"{get_all_employees()}"
         if len(parsed) == 3:
             (resource, key, value) = parsed
 
             if key == 'email' and resource == 'customers':
                 response = get_customer_by_email(value)
+            elif key == "name" and resource == "customers":
+                response = get_customers_by_name(value)
+            elif key == "search" and resource == 'animals':
+                response = get_animals_by_search(value)
 
         self.wfile.write(response.encode())
 
@@ -99,7 +119,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         """Handles PUT requests to the server"""
-        
+
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         request = json.loads(post_body)
@@ -114,15 +134,13 @@ class HandleRequests(BaseHTTPRequestHandler):
         else:
             self._set_headers(404)
 
-
-
     def do_DELETE(self):
         """Handle DELETE Requests"""
         resource, id = self.parse_url()
         was_updated = False
         if resource == 'animals':
             was_updated = delete_animal(id)
-        
+
         if was_updated:
             self._set_headers(204)
         else:
