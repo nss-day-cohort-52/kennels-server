@@ -108,9 +108,12 @@ def get_single_animal(id):
         animal = Animal(data['id'], data['name'], data['breed'],
                         data['status'], data['location_id'],
                         data['customer_id'])
-        animal.customer = Customer(
-                            data['customer_id'], data['customer_name'], data['customer_address'], data['email']).__dict__
-        animal.location = Location(data['location_id'], data['location_name'], data['location_address']).__dict__
+        animal.customer = Customer(data['customer_id'],
+                                   data['customer_name'],
+                                   data['customer_address'],
+                                   data['email']).__dict__
+        animal.location = Location(
+            data['location_id'], data['location_name'], data['location_address']).__dict__
 
         return json.dumps(animal.__dict__)
 
@@ -124,13 +127,21 @@ def create_animal(animal):
     Returns:
         dictionary: the new animal
     """
-    last_id = ANIMALS[-1]['id']
-    new_id = last_id + 1
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
 
-    animal['id'] = new_id
-    ANIMALS.append(animal)
+        db_cursor.execute("""
+            insert into Animal (name, breed, status, location_id, customer_id)
+            values (?, ?, ?, ?, ?);
+        """, (animal['name'], animal['breed'], animal['status'], animal['location_id'], animal['customer_id']))
 
-    return animal
+        id = db_cursor.lastrowid
+
+        animal['id'] = id
+
+        return json.dumps(animal)
+
 
 
 def delete_animal(id):

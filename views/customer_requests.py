@@ -32,7 +32,7 @@ def get_all_customers():
         string: a json formatted string
     """
     # Open a connection to the database
-    with sqlite3.connect("./kennel.db") as conn:
+    with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
@@ -72,7 +72,7 @@ def get_single_customer(id):
     Returns:
         string: a json formatted string
     """
-    with sqlite3.connect("./kennel.db") as conn:
+    with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
@@ -100,7 +100,7 @@ def get_single_customer(id):
 
 def get_customers_by_name(full_name):
     name = " ".join(full_name.split("+"))
-    with sqlite3.connect("./kennel.db") as conn:
+    with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 

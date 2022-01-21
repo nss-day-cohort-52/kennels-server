@@ -10,7 +10,7 @@ def get_all_employees():
     Returns:
         [List]: list of dictionaries
     """
-    with sqlite3.connect('./kennel.db') as conn:
+    with sqlite3.connect('./kennel.sqlite3') as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
         db_cursor.execute("""
@@ -42,7 +42,7 @@ def get_single_employee(id):
     Returns:
         [dictionary]: The selected employee
     """
-    with sqlite3.connect("./kennel.db") as conn:
+    with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 

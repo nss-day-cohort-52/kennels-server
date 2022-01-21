@@ -10,7 +10,7 @@ def get_all_locations():
         string: json formatted string
     """
     # Open a connection to the database
-    with sqlite3.connect("./kennel.db") as conn:
+    with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
