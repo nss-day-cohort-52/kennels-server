@@ -55,4 +55,21 @@ INSERT INTO `Animal` VALUES (null, "Jax", "Treatment", "Beagle", 1, 1);
 INSERT INTO `Animal` VALUES (null, "Falafel", "Treatment", "Siamese", 4, 2);
 INSERT INTO `Animal` VALUES (null, "Doodles", "Kennel", "Poodle", 3, 1);
 INSERT INTO `Animal` VALUES (null, "Daps", "Kennel", "Boxer", 2, 2);
-INSERT INTO `Animal` (name, status, breed, customer_id, location_id) VALUES ('Jack', 'Napping', 'Husky', 1, 1);
+
+-- Location does not exist in db
+INSERT INTO `Animal` VALUES (null, "Jack", "Napping", "Husky", 1, 3);
+
+
+select a.id,
+	a.name,
+	a.breed,
+	a.status,
+	a.location_id,
+	a.customer_id,
+	l.name location_name,
+	l.address location_address,
+	c.name customer_name,
+	c.email
+from animal a
+left join location l on l.id = a.location_id
+join customer c on c.id = a.customer_id

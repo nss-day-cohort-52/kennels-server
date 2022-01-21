@@ -1,6 +1,8 @@
 import sqlite3
 import json
 from models.animals import Animal
+from models.customers import Customer
+from models.locations import Location
 ANIMALS = [
     {
         "id": 1,
@@ -38,8 +40,15 @@ def get_all_animals():
                 a.breed,
                 a.status,
                 a.location_id,
-                a.customer_id
+                a.customer_id,
+                l.name location_name,
+                l.address location_address,
+                c.name customer_name,
+                c.email,
+                c.address customer_address
             from animal a
+            join location l on l.id = a.location_id
+            join customer c on c.id = a.customer_id
         """)
 
         dataset = db_cursor.fetchall()
@@ -49,7 +58,10 @@ def get_all_animals():
         for row in dataset:
             animal = Animal(row['id'], row['name'], row['breed'],
                             row['status'], row['location_id'], row['customer_id'])
-
+            animal.customer = Customer(
+                row['customer_id'], row['customer_name'], row['customer_address'], row['email']).__dict__
+            animal.location = Location(
+                row['location_id'], row['location_name'], row['location_address']).__dict__
             animals.append(animal.__dict__)
 
         return json.dumps(animals)
@@ -77,8 +89,15 @@ def get_single_animal(id):
             a.breed,
             a.status,
             a.location_id,
-            a.customer_id
+            a.customer_id,
+            l.name location_name,
+            l.address location_address,
+            c.name customer_name,
+            c.email,
+            c.address customer_address
         FROM animal a
+        join location l on l.id = a.location_id
+        join customer c on c.id = a.customer_id
         WHERE a.id = ?
         """, (id, ))
 
@@ -89,6 +108,9 @@ def get_single_animal(id):
         animal = Animal(data['id'], data['name'], data['breed'],
                         data['status'], data['location_id'],
                         data['customer_id'])
+        animal.customer = Customer(
+                            data['customer_id'], data['customer_name'], data['customer_address'], data['email']).__dict__
+        animal.location = Location(data['location_id'], data['location_name'], data['location_address']).__dict__
 
         return json.dumps(animal.__dict__)
 
